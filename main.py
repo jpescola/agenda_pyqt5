@@ -1,9 +1,34 @@
+import os
+
 from PyQt5 import uic
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QApplication, QInputDialog, QListWidgetItem
+from PyQt5.QtCore import QDate
+from PyQt5.QtGui import QColor, QTextCharFormat
+from PyQt5.QtWidgets import QApplication, QInputDialog, QListWidgetItem, QMessageBox
+
+
+def confirm(titulo, texto):
+    m = QMessageBox(window)
+    m.setIcon(QMessageBox.Question)
+    m.setWindowTitle(titulo)
+    m.setText(texto)
+    m.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    m.button(QMessageBox.Yes).setText("Sim")
+    m.button(QMessageBox.No).setText("Não")
+    return m.exec()
+
+
+def formatar(d, cor):
+    estilo = QTextCharFormat()
+    estilo.setBackground(QColor(cor))
+    t.calendario.setDateTextFormat(QDate.fromString(d, 'yyyy-M-d'), estilo)
 
 
 def carregar():
+    # destaca os dias com compromissos
+    for f in os.listdir('.'):
+        if f.endswith('.dat'):
+            formatar(f.split('.dat')[0], '#FF3131')  # neon red
+
     get_dia()  # busca o dia atual
     t.lista.clear()  # limpa a lista
 
@@ -57,6 +82,9 @@ def editar():
 
 
 def excluir():
+    if confirm('Excluindo compromisso', 'Confirma exclusão?') == QMessageBox.No:
+        return
+
     hora = t.lista.currentItem().text().split('h ')[0]
 
     f = open(str(dia) + '.dat', 'r+')  # abre o arquivo do dia atual
@@ -76,21 +104,48 @@ def excluir():
     carregar()  # recarrega a lista na tela
 
 
-# inicializando a janela
-Form, Window = uic.loadUiType("main.ui")
+def nova():
+    if confirm('Nova agenda', 'Confirma exclusão de todos os compromissos?') == QMessageBox.No:
+        return
+
+    # exclui todos os arquivos com extensão '.dat'
+    for a in os.listdir('.'):
+        if a.endswith('.dat'):
+            formatar(a.split('.dat')[0], 'white')
+            os.remove(a)
+    # [os.remove(a) for a in os.listdir('.') if a.endswith('.dat')]
+    carregar()
+
+
+def habilitar_botao_excluir():
+    if t.lista.currentItem().text().split('h ')[1]:
+        t.excluir.setEnabled(True)
+
+
+# Inicializando os componentes da janela PyQt5
 app = QApplication([])
-# app.aboutToQuit.connect(salvar)
-window = Window()
+
+# inicializando a janela pelo arquivo .ui
+Form, Window = uic.loadUiType("main.ui")
 t = Form()
+window = Window()
+
+# inicializando a janela pelo arquivo .py convertido por "pyuic5 -x main.ui -o main_ui.py"
+# t = Ui_MainWindow()
+# window = QMainWindow()
+
 t.setupUi(window)  # carrega os componentes
 
 # define os eventos dos botões
 t.actionSair.triggered.connect(sair)  # QAction usa triggered ao invés de clicked
+t.actionNova.triggered.connect(nova)
 t.calendario.clicked.connect(carregar)
-dia = t.calendario.selectedDate().toPyDate()
 t.lista.itemDoubleClicked.connect(editar)
+t.lista.itemClicked.connect(habilitar_botao_excluir)
+t.lista.itemSelectionChanged.connect(lambda: t.excluir.setEnabled(False))
 t.excluir.clicked.connect(excluir)
 
+dia = t.calendario.selectedDate().toPyDate()
 carregar()
 
 # apresenta a janela

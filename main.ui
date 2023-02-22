@@ -7,8 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>454</width>
-    <height>578</height>
+    <height>555</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>454</width>
+    <height>555</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Agenda</string>
@@ -25,6 +37,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="excluir">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -64,6 +79,7 @@
     <property name="title">
      <string>Agenda</string>
     </property>
+    <addaction name="actionNova"/>
    </widget>
    <widget class="QMenu" name="menuSistema">
     <property name="title">
@@ -74,10 +90,14 @@
    <addaction name="menuAgenda"/>
    <addaction name="menuSistema"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSair">
    <property name="text">
     <string>Sair</string>
+   </property>
+  </action>
+  <action name="actionNova">
+   <property name="text">
+    <string>Nova</string>
    </property>
   </action>
  </widget>
