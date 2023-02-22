@@ -1,1 +1,4 @@
 *.dat
+build
+dist
+__pycache__
